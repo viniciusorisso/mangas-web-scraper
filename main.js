@@ -4,7 +4,7 @@ import { Telegraf } from "telegraf";
 import { getNewestMangas } from "./potusScraper.js";
 import { normalizeMangaName } from "./utils.js";
 
-const bot = new Telegraf('6345679556:AAGlG-MiCbUX5HmtTh2QNx6b4coXQRyjJ08');
+const bot = new Telegraf();
 
 bot.start((ctx) => ctx.reply('Alou, digite "subscribe nome-do-manga" para inscrever um manga para ser observado'));
 bot.command('subscribe', async (ctx) => { 
