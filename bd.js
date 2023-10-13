@@ -12,7 +12,9 @@ export const subscribeToAManga = async (mangaName) => {
 
   if (await mangaIsAlreadySubscribed(normalizedManga)) return;
 
-  fs.writeFileSync(filename, normalizedManga + '\n');
+  const buffer = fs.readFileSync(filename);
+  const fileContent = buffer.toString();
+  fs.writeFileSync(filename, fileContent + normalizedManga + '\n');
 };
 
 /**
@@ -24,9 +26,9 @@ export const getMangasSubscribed = async () => {
     fs.writeFileSync(filename, '');
 
   const buffer = fs.readFileSync(filename);
-  const fileContend = buffer.toString();
+  const fileContent = buffer.toString();
 
-  return fileContend.split('\n');
+  return fileContent.split('\n');
 }
 
 /**

@@ -2,9 +2,9 @@ import { getMangasSubscribed } from "./bd.js";
 import { getNewestMangas } from "./potusScraper.js";
 import { normalizeMangaName } from "./utils.js";
 
-const _subscribedMangas = await getMangasSubscribed();
-
 export const verifyNewestMangas = async () => {
+  const _subscribedMangas = await getMangasSubscribed();
+
   const newest = await getNewestMangas();
   const mangasUpdated = [];
 
