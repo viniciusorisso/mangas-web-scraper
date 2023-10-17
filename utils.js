@@ -39,3 +39,57 @@ export const generateMarkdownReply = (mangas) => {
     ${mangasMark}
   `;
 };
+
+/**
+ * 
+ * @param {Array<{name: String, chapters: Array<String>}>} mangas 
+ */
+export const generateMangaMenu = (mangas) => {
+  const mangasMenu = [];
+  const mangaMenuGenerator = menuGenerator(mangas);
+  let current = mangaMenuGenerator.next();
+
+  while(current.done === false) {
+    mangasMenu.push(current.value)
+    current = mangaMenuGenerator.next();
+  }
+
+  return {
+    reply_markup: {
+      inline_keyboard: mangasMenu
+    }
+  };
+}
+
+/**
+ * 
+ * @param {Array<{name: String, chapters: Array<String>}>} mangas 
+ */
+function* menuGenerator (mangas) {
+  for (let i = 0; i < mangas.length ; i++) {
+    const menu = [
+      {
+        text: normalizeMangaName(mangas[i].name),
+        callback_data: `Manga-${i}`
+      }
+    ]
+
+    yield menu;
+  }
+}
+
+/**
+ * 
+ * @param {{name: String, chapters: Array<String>>}}
+ */
+export const selectedMangaMenu = ({name, chapters}) => {
+  const menu = [];
+  chapters.forEach(chap => {
+    menu.push({
+      text: chap,
+      url: `${process.env.BASE_URL + name.replace('/Manga/', '/Read1_') + '_' + chap}`
+    })
+  });
+
+  return menu;
+};

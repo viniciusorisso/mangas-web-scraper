@@ -2,7 +2,7 @@ import { subscribeToAManga, unsubscribeToAManga } from "./bd.js";
 import { verifyNewestMangas } from "./comparison.js";
 import { Telegraf } from "telegraf";
 import { getNewestMangas } from "./potusScraper.js";
-import { generateMarkdownReply } from "./utils.js";
+import { generateMangaMenu, selectedMangaMenu, normalizeMangaName } from "./utils.js";
 
 const bot = new Telegraf(process.env.TELEGRAM_TOKEN_API);
 
@@ -14,8 +14,8 @@ bot.command('subscribe', async (ctx) => {
 
 bot.command('today', async (ctx) => {
   const news = await getNewestMangas();
-  const markdownText = generateMarkdownReply(news);
-  ctx.replyWithMarkdownV2(String(markdownText));
+  const replyMenu = generateMangaMenu(news);
+  ctx.sendMessage('New Mangas Released Today', replyMenu);
 })
 
 bot.command('updated', async (ctx) => {
@@ -24,8 +24,8 @@ bot.command('updated', async (ctx) => {
     ctx.reply('Nenhum mangá atualizado');
   }
   else {
-    const markdownText = generateMarkdownReply(updated);
-    ctx.replyWithMarkdownV2(String(markdownText));
+    const replyMenu = generateMangaMenu(updated);
+    ctx.sendMessage('Subscribed Updated Today', replyMenu);
   }
 });
 
@@ -37,6 +37,23 @@ bot.command('help', (ctx) => {
 
 bot.command('unsubscribe', async (ctx) => {
   await unsubscribeToAManga(ctx.payload);
+});
+
+bot.action(/Manga-+/, async (ctx) => {
+  let mangaId = ctx.match.input.substring(6);
+
+  const news = await getNewestMangas();
+  const mangaMenu = selectedMangaMenu(news[mangaId]);
+
+  ctx.deleteMessage();
+  ctx.sendMessage(normalizeMangaName(news[mangaId].name), { 
+    reply_markup: {
+      inline_keyboard: [
+        mangaMenu
+      ]
+    }
+  });
+  console.log(mangaId);
 });
 
 bot.launch();
