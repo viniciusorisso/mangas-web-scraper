@@ -4,7 +4,7 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "dev": "node main.js",
+    "dev": "node -r dotenv/config main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,9 +13,9 @@
   "type": "module",
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
-    "puppeteer": "^21.3.8",
-    "request": "^2.88.2",
-    "request-promise": "^4.2.6",
+    "dotenv": "^16.3.1",
+    "got": "^13.0.0",
+    "puppeteer": "^21.3.8", 
     "telegraf": "^4.14.0"
   }
 }

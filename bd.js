@@ -18,6 +18,19 @@ export const subscribeToAManga = async (mangaName) => {
 };
 
 /**
+ * @param {String} mangaName
+ */
+export const unsubscribeToAManga = async (mangaName) => {
+  const normalizedManga = normalizeMangaName(mangaName);
+
+  if (!await mangaIsAlreadySubscribed(normalizeMangaName)) return;
+
+  const buffer = fs.readFileSync(filename);
+  const fileContent = buffer.toString();
+  fs.writeFileSync(filename, fileContent.replace(normalizedManga, ''));
+};
+
+/**
  * 
  * @returns {Array<String>}
  */
@@ -34,6 +47,7 @@ export const getMangasSubscribed = async () => {
 /**
  * 
  * @param {String} mangaName 
+ * @returns {Boolean}
  */
 const mangaIsAlreadySubscribed = async (mangaName) => {
   const allMangas = await getMangasSubscribed();
