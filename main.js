@@ -1,24 +1,26 @@
-import { subscribeToAManga, unsubscribeToAManga } from "./bd.js";
-import { verifyNewestMangas } from "./comparison.js";
 import { Telegraf } from "telegraf";
-import { getNewestMangas } from "./potusScraper.js";
+import { fetchNewestMangas } from "./potusScraper.js";
 import { generateMangaMenu, selectedMangaMenu, normalizeMangaName } from "./utils.js";
+import { updateNewestMangas } from "./bd/interface.js";
+import { getNewestMangas } from "./bd/interface.js";
 
 const bot = new Telegraf(process.env.TELEGRAM_TOKEN_API);
 
 bot.start((ctx) => ctx.reply('Hello, type "\/help" to see more info commands\n'));
 
-bot.command('subscribe', async (ctx) => { 
+/*bot.command('subscribe', async (ctx) => { 
   await subscribeToAManga(ctx.payload);
-});
+});*/
 
 bot.command('today', async (ctx) => {
+  //const news = await fetchNewestMangas();
   const news = await getNewestMangas();
+  updateNewestMangas(news);
   const replyMenu = generateMangaMenu(news);
   ctx.sendMessage('New Mangas Released Today', replyMenu);
 })
 
-bot.command('updated', async (ctx) => {
+/*bot.command('updated', async (ctx) => {
   const updated = await verifyNewestMangas();
   if(updated.length === 0) {
     ctx.reply('Nenhum mangá atualizado');
@@ -37,7 +39,7 @@ bot.command('help', (ctx) => {
 
 bot.command('unsubscribe', async (ctx) => {
   await unsubscribeToAManga(ctx.payload);
-});
+});*/
 
 bot.action(/Manga-+/, async (ctx) => {
   let mangaId = ctx.match.input.substring(6);
@@ -46,14 +48,30 @@ bot.action(/Manga-+/, async (ctx) => {
   const mangaMenu = selectedMangaMenu(news[mangaId]);
 
   ctx.deleteMessage();
-  ctx.sendMessage(normalizeMangaName(news[mangaId].name), { 
+  await ctx.replyWithPhoto({url: news[mangaId].img});
+  await ctx.sendMessage(normalizeMangaName(news[mangaId].name),{ 
     reply_markup: {
       inline_keyboard: [
-        mangaMenu
-      ]
+        mangaMenu,
+        [{ text: 'Back', callback_data: 'render-menu'}]
+      ],
     }
   });
-  console.log(mangaId);
 });
+
+bot.action('render-menu', async (ctx) => {
+  let res = await ctx.reply('Loading...');
+  let i = res.message_id;
+  await ctx.telegram.deleteMessage(ctx.chat.id, i);
+  await ctx.telegram.deleteMessage(ctx.chat.id, i-1);
+  await ctx.telegram.deleteMessage(ctx.chat.id, i-2);
+
+  const news = await getNewestMangas();
+  updateNewestMangas(news);
+  const replyMenu = generateMangaMenu(news);
+  ctx.sendMessage('New Mangas Released Today', replyMenu);
+});
+
+
 
 bot.launch();

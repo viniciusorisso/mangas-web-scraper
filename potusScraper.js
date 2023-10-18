@@ -1,12 +1,13 @@
 import got from 'got';
 export const URL_BASE = process.env.BASE_URL;
 import { load } from 'cheerio';
+import { Manga } from './bd/classes/Manga.js';
 
 /**
  * 
  * @returns {Array<{name: String,chapter: Array<String>}>}
  */
-export const getNewestMangas = async () => {
+export const fetchNewestMangas = async () => {
   let rawHtml = '';
   const newestMangas = [];
   
@@ -30,10 +31,14 @@ export const getNewestMangas = async () => {
   children.forEach(el => {
     let name = '';
     let chapters = [];
+    let img = '';
   
     el.forEach(div => {
       if(div.attribs.class === 'name') {
         name = div.attribs.href;
+      }
+      else if(div.attribs.class === 'image') {
+        img = div.children[0].attribs.src;
       }
       else if(div.attribs.class === 'chapter_box') {
         div.children.forEach(el => {
@@ -44,11 +49,10 @@ export const getNewestMangas = async () => {
       }
     })
   
-    newestMangas.push({
-      name,
-      chapters
-    });
+    const manga = new Manga(name, chapters, img);
+    newestMangas.push(manga);
   });
   
-  return newestMangas;
+
+  return newestMangas.sort();
 };

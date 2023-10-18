@@ -1,3 +1,5 @@
+import { Manga } from "./bd/classes/Manga.js";
+
 /**
  * 
  * @param {String} manga 
@@ -80,14 +82,15 @@ function* menuGenerator (mangas) {
 
 /**
  * 
- * @param {{name: String, chapters: Array<String>>}}
+ * @param {Manga} manga
+ * @returns {Array<{text: string, url: string}>}
  */
-export const selectedMangaMenu = ({name, chapters}) => {
+export const selectedMangaMenu = (manga) => {
   const menu = [];
-  chapters.forEach(chap => {
+  manga.lastChapters.forEach(chap => {
     menu.push({
       text: chap,
-      url: `${process.env.BASE_URL + name.replace('/Manga/', '/Read1_') + '_' + chap}`
+      url: manga.chapterUrl(chap)
     })
   });
 

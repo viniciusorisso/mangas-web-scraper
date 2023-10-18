@@ -1,15 +1,24 @@
+import { normalizeMangaName } from "../../utils.js";
+
 export class Manga {
   name;
   lastChapters;
-  url;
 
-  constructor(name, lastChapters, url) {
-    this.name = name;
+  constructor(name, lastChapters, img) {
+    this.name = normalizeMangaName(name);
     this.lastChapters = lastChapters;
-    this.url = url;
+    this.img = img;
+  }
+  
+  get url() {
+    return `${process.env.BASE_URL + '/Read1_' + this.nameToUrl()}`;
   }
 
   chapterUrl(chapter) {
     return this.url + '_' + chapter;
+  }
+
+  nameToUrl() {
+    return this.name.split(' ').join('_');
   }
 }
