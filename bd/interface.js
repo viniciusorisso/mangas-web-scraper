@@ -2,6 +2,7 @@ import fs from 'fs';
 import { normalizeMangaName } from '../utils.js';
 import { Manga } from './classes/Manga.js';
 import path from 'path';
+import { fetchNewestMangas } from '../potusScraper.js';
 
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -18,26 +19,22 @@ const filesPath = (filename) => path.resolve(__dirname,`./files/${filename}`);
  * @param {String} mangaName 
  */
 export const subscribeToAManga = async (mangaName) => {
-  const normalizedManga = normalizeMangaName(mangaName);
-
-  if (await mangaIsAlreadySubscribed(normalizedManga)) return;
+  if (await mangaIsAlreadySubscribed(mangaName)) return;
 
   const buffer = fs.readFileSync(filesPath(SUBSCRIBE_FILENAME));
   const fileContent = buffer.toString();
-  fs.writeFileSync(filesPath(SUBSCRIBE_FILENAME), fileContent + normalizedManga + '\n');
+  fs.writeFileSync(filesPath(SUBSCRIBE_FILENAME), fileContent + mangaName + '\n');
 };
 
 /**
  * @param {String} mangaName
  */
 export const unsubscribeToAManga = async (mangaName) => {
-  const normalizedManga = normalizeMangaName(mangaName);
-
-  if (!await mangaIsAlreadySubscribed(normalizeMangaName)) return;
+  if (!await mangaIsAlreadySubscribed(mangaName)) return;
 
   const buffer = fs.readFileSync(filesPath(SUBSCRIBE_FILENAME));
   const fileContent = buffer.toString();
-  fs.writeFileSync(filesPath(SUBSCRIBE_FILENAME), fileContent.replace(normalizedManga, ''));
+  fs.writeFileSync(filesPath(SUBSCRIBE_FILENAME), fileContent.replace(mangaName, ''));
 };
 
 /**
@@ -70,6 +67,9 @@ const mangaIsAlreadySubscribed = async (mangaName) => {
  * @param {Array<Manga>} news 
  */
 export const updateNewestMangas = (news) => {
+  if(!fs.existsSync(filesPath(NEWEST_FILENAME)))
+    fs.writeFileSync(filesPath(NEWEST_FILENAME), '');
+
   const parsedMangas = news.map(manga => {
     return `${manga.name}<-${manga.lastChapters.join(',')}#${manga.img};`
   }).join('\n');
@@ -82,7 +82,7 @@ export const updateNewestMangas = (news) => {
  */
 export const getNewestMangas = () => {
   if(!fs.existsSync(filesPath(NEWEST_FILENAME)))
-  fs.writeFileSync(filesPath(NEWEST_FILENAME), '');
+    fs.writeFileSync(filesPath(NEWEST_FILENAME), '');
 
   const buffer = fs.readFileSync(filesPath(NEWEST_FILENAME));
   const fileContent = buffer.toString();
@@ -98,4 +98,8 @@ export const getNewestMangas = () => {
   })
 
   return mangasArr;
+};
+
+export const clearNewestMangas = () => {
+  fs.unlinkSync(filesPath(NEWEST_FILENAME));
 };

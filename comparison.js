@@ -1,6 +1,5 @@
-import { getMangasSubscribed } from "./bd.js";
-import { getNewestMangas } from "./potusScraper.js";
-import { normalizeMangaName } from "./utils.js";
+import { getMangasSubscribed } from "./bd/interface.js";
+import { getNewestMangas } from "./bd/interface.js";
 
 /**
  * 
@@ -13,8 +12,7 @@ export const verifyNewestMangas = async () => {
   const mangasUpdated = [];
 
   newest.forEach(manga => { 
-    const normalizedManga = normalizeMangaName(manga.name);
-    const found = _subscribedMangas.find(subs => normalizedManga.toLowerCase() === subs.toLowerCase());
+    const found = _subscribedMangas.find(subs => manga.name.toLowerCase() === subs.toLowerCase() || subs.toLowerCase().includes(manga.name.toLowerCase()));
 
     if (found) mangasUpdated.push(manga);
   });

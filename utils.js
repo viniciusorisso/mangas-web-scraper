@@ -58,7 +58,10 @@ export const generateMangaMenu = (mangas) => {
 
   return {
     reply_markup: {
-      inline_keyboard: mangasMenu
+      inline_keyboard: [
+        ...mangasMenu,
+        [{ text: 'Close menu', callback_data: 'close-menu'}],
+      ]
     }
   };
 }
